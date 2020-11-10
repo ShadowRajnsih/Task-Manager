@@ -1,5 +1,6 @@
 const express=require('express')
 const User=require('../models/users.js')
+const { update } = require('../models/users.js')
 const router = new express.Router()
 
 router.post('/users', async (req,res)=>{
@@ -58,8 +59,15 @@ router.patch('/user/:id',async (req,res)=>{
     }
     
     try{
-        const update= await User.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
-        res.status(200).send(update)
+        const user= await User.findById(req.params.id)
+        updates.forEach((update)=> user[update]=req.body[update])
+        await user.save()
+        //const update= await User.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
+        if(!user)
+        {
+          return  res.status(404).send()
+        }
+        res.status(200).send(user)
     }
     catch(e){
         res.status(500).send("Unable to update")
