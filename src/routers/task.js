@@ -1,5 +1,5 @@
 const express=require('express')
-const Task=require('../src/models/tasks.js')
+const Task=require('../models/tasks.js')
 const router = new express.Router()
 
 

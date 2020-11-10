@@ -1,5 +1,5 @@
 const express=require('express')
-const User=require('../src/models/users.js')
+const User=require('../models/users.js')
 const router = new express.Router()
 
 router.post('/users', async (req,res)=>{
