@@ -1,6 +1,21 @@
 const express=require('express')
+const sharp=require('sharp')
 const User=require('../models/users.js')
 const auth=require('../middleware/auth.js');
+const multer=require('multer')
+const upload=multer({
+    limits:{
+        fileSize:10000000
+    },
+    fileFilter(req,file,cb){
+        if(!file.originalname.match(/\.(jpg|jpeg|png)$/))
+        {
+            return cb(new Error('Please upload an image'))
+        }
+
+        cb(undefined,true)
+    }
+})
 const { update } = require('../models/users.js')
 const router = new express.Router()
 
@@ -110,6 +125,32 @@ router.delete('/users/me',auth,async (req,res)=>{
     catch (e){
         res.status(500).send("Unable to delete user")
     }
+})
+
+router.post('/user/me/avatar',auth,upload.single('avatar'),async (req,res)=>{
+    const buffer=await sharp(req.file.buffer).resize({width:250,height:250}).png().toBuffer()
+    req.user.avatar=buffer
+    await req.user.save()
+    res.send()   
+ 
+},(error,req,res,next)=>{
+    res.status(400).send({error:error.message})
+})
+
+router.delete('/user/me/avatar',auth,async (req,res)=>{
+    req.user.avatar=undefined
+    await req.user.save()
+    res.send()
+})
+
+router.get('/user/me/avatar/view',auth,async (req,res)=>{
+    avatar=req.user.avatar
+    if(!avatar)
+    {
+        return res.status(404).send()
+    }
+    res.set('Content-Type', 'image/png')
+    res.send(avatar)
 })
 
 module.exports = router

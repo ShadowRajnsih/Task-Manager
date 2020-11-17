@@ -37,7 +37,10 @@ const userSchema = new mongoose.Schema({name:{type:String,
             type:String,
             required:true
         }
-    }]
+    }],
+    avatar:{
+        type:Buffer
+    }
 },{
     timestamps:true
 })
@@ -52,6 +55,7 @@ const userSchema = new mongoose.Schema({name:{type:String,
         const userObject=user.toObject()
         delete userObject.password
         delete userObject.tokens
+        delete userObject.avatar
         
         return userObject
     }
